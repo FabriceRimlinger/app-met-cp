@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/FabriceRimlinger/app-met-cp/static/css/main.f855e6bc.css",
+    "main.js": "/FabriceRimlinger/app-met-cp/static/js/main.0edc20ec.js",
+    "static/js/453.96453769.chunk.js": "/FabriceRimlinger/app-met-cp/static/js/453.96453769.chunk.js",
+    "static/media/logo.svg": "/FabriceRimlinger/app-met-cp/static/media/logo.6ce24c58023cc2f8fd88fe9d219db6c6.svg",
+    "index.html": "/FabriceRimlinger/app-met-cp/index.html",
+    "main.f855e6bc.css.map": "/FabriceRimlinger/app-met-cp/static/css/main.f855e6bc.css.map",
+    "main.0edc20ec.js.map": "/FabriceRimlinger/app-met-cp/static/js/main.0edc20ec.js.map",
+    "453.96453769.chunk.js.map": "/FabriceRimlinger/app-met-cp/static/js/453.96453769.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.f855e6bc.css",
+    "static/js/main.0edc20ec.js"
+  ]
+}
