@@ -1,11 +1,16 @@
+/* Universal reset for HTML and Body margins/paddings */
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
 /* --- Global Styles --- */
 body {
     font-family: sans-serif;
-    margin: 0;
-    padding: 0;
+    /* margin: 0; and padding: 0; are now handled by html, body reset above */
     background-color: #f0f0f0;
     color: #333; /* This is your intended dark text color */
-    padding-top: 50px; /* Default padding for fixed header */
+    padding-top: 55px; /* Default padding for fixed header */
 }
 
 /* --- Top Banner Styles --- */
@@ -334,8 +339,8 @@ body {
         align-items: flex-start; /* Align buttons to the left */
         width: 100%;
         gap: 5px;
-        margin-top: 5px;
-        padding-top: 5px;
+        margin-top: 10px;
+        padding-top: 10px;
         border-top: 1px solid #eee;
         display: none; /* Hidden by default on mobile */
     }
