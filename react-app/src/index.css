@@ -5,7 +5,7 @@ body {
     padding: 0;
     background-color: #f0f0f0;
     color: #333; /* This is your intended dark text color */
-    padding-top: 55px; /* Added back from original HTML */
+    padding-top: 55px; /* Default padding for fixed header */
 }
 
 /* --- Top Banner Styles --- */
@@ -23,7 +23,7 @@ body {
     align-items: center;
     z-index: 100;
     box-sizing: border-box;
-    height: 55px;
+    height: 55px; /* Fixed height for desktop */
     gap: 10px;
 }
 .banner-controls-left, .banner-controls-right {
@@ -37,7 +37,14 @@ body {
     margin: 0;
     flex-grow: 1;
     text-align: center;
+    /* Added for mobile toggle functionality */
+    cursor: pointer;
+    display: flex;
+    justify-content: center; /* Center horizontally by default */
+    align-items: center;
+    white-space: nowrap; /* Prevent title from wrapping */
 }
+/* Default visibility for header buttons - visible on desktop */
 #load-data-button, .toggle-button, #ratio-toggle-button {
     padding: 6px 10px;
     cursor: pointer;
@@ -67,6 +74,8 @@ body {
 .region-button:hover { background-color: #5a6268; }
 .region-button.active { background-color: #007bff; }
 .menu-container { position: relative; }
+
+/* Hamburger icon for AI Studio dropdown (desktop display) */
 .hamburger-icon {
     font-size: 1.8em;
     cursor: pointer;
@@ -75,8 +84,23 @@ body {
     padding: 0 5px;
     line-height: 1;
     color: #555;
+    display: block; /* Visible by default on desktop */
 }
 .hamburger-icon:hover { color: #000; }
+
+/* Hamburger icon for mobile controls toggle (hidden by default, shown by media query) */
+.hamburger-icon-toggle {
+    display: none; /* Hidden by default on desktop */
+    font-size: 1.8em;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0; /* No padding needed as it's inside title flex */
+    line-height: 1;
+    color: #333; /* Dark color for visibility */
+    margin-left: 10px; /* Space from title text */
+}
+
 .dropdown-menu {
     display: none;
     position: absolute;
@@ -129,6 +153,8 @@ body {
     flex-direction: column;
     position: relative;
     cursor: pointer;
+    min-width: unset; /* Ensure chart containers don't have a fixed minimum width preventing wrap */
+    max-width: 100%; /* Ensure chart containers don't overflow */
 }
 #container-reseau { background-color: #e6f2ff; }
 .chart-title {
@@ -227,106 +253,6 @@ body {
 #table-filter-container label { cursor: pointer; user-select: none; }
 #table-filter-container input { vertical-align: middle; margin-right: 4px; }
 
-/* --- New Responsive Adjustments for Top Banner --- */
-@media (max-width: 768px) {
-    .top-banner {
-        flex-direction: column; /* Stack items vertically */
-        align-items: flex-start; /* Align items to the start (left) */
-        height: auto;
-        padding: 8px 10px;
-        position: relative; /* Allow dropdown to position relative to banner */
-    }
-
-    .banner-title {
-        width: 100%; /* Title takes full width */
-        text-align: left; /* Align title to left */
-        margin-bottom: 5px; /* Space below title */
-        font-size: 1.2em; /* Slightly smaller title on mobile */
-    }
-
-    /* Hide hamburger by default for desktop, show on mobile */
-    .hamburger-icon {
-        display: block; /* Show hamburger icon on mobile */
-        position: absolute; /* Position it absolutely */
-        right: 10px; /* From right edge */
-        top: 8px; /* From top edge */
-        font-size: 1.8em;
-        color: #333; /* Dark color for visibility */
-    }
-
-    /* Control visibility of banner controls on mobile */
-    .banner-controls-left,
-    .banner-controls-right {
-        flex-direction: column; /* Stack buttons vertically */
-        align-items: flex-start; /* Align buttons to the left */
-        width: 100%;
-        gap: 5px; /* Smaller gap between stacked buttons */
-        margin-top: 10px; /* Space from title */
-        padding-top: 10px; /* Padding for the top section */
-        border-top: 1px solid #eee; /* Separator line */
-        display: none; /* Hidden by default on mobile */
-    }
-
-    .banner-controls-left.visible-mobile,
-    .banner-controls-right.visible-mobile {
-        display: flex; /* Show when 'visible-mobile' class is active */
-    }
-
-    #region-filters {
-        flex-wrap: wrap; /* Allow region buttons to wrap */
-        justify-content: flex-start; /* Align region buttons to start */
-        gap: 5px;
-        padding-left: 0;
-        margin-left: 0;
-        border-left: none;
-        width: 100%; /* Take full width */
-    }
-
-    .region-button {
-        flex-grow: 0; /* Don't force them to grow */
-        flex-basis: auto; /* Let content define width */
-        white-space: nowrap; /* Keep buttons on one line */
-        width: auto; /* Auto width */
-    }
-
-    body {
-        padding-top: 60px; /* Adjust padding-top for collapsible banner */
-    }
-}
-
-/* Ensure hamburger is hidden on larger screens by default */
-@media (min-width: 769px) {
-    .hamburger-icon {
-        display: none; /* Hide hamburger on desktop */
-    }
-
-    /* Ensure controls are always visible on desktop */
-    .banner-controls-left,
-    .banner-controls-right {
-        display: flex !important; /* Force display flex on desktop */
-        flex-direction: row !important; /* Restore row direction */
-        width: auto !important; /* Restore auto width */
-        margin-top: 0 !important;
-        padding-top: 0 !important;
-        border-top: none !important;
-    }
-    #region-filters {
-        border-left: 2px solid #ccc; /* Restore border for desktop */
-        padding-left: 10px;
-        margin-left: 5px;
-    }
-}
-
-/* Ensure chart containers adapt */
-.chart-grid {
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Slightly larger min-width for phone readability */
-}
-
-.chart-container {
-    min-width: unset; /* Ensure chart containers don't have a fixed minimum width preventing wrap */
-    max-width: 100%; /* Ensure chart containers don't overflow */
-}
-
 /* --- Sticky Table Columns --- */
 #table-scroll-wrapper { max-height: 400px; overflow: auto; border: 1px solid #ccc; }
 #data-table { width: 100%; border-collapse: collapse; font-size: 0.8em; }
@@ -352,7 +278,118 @@ body {
 #data-table th:nth-child(1), #data-table td:nth-child(1) { left: 0; min-width: 120px; z-index: 1; }
 #data-table th:nth-child(2), #data-table td:nth-child(2) { left: 120px; min-width: 60px; z-index: 1; }
 #data-table th:nth-child(3), #data-table td:nth-child(3) { left: 180px; min-width: 80px; z-index: 1; }
+
+/* 5. Les en-têtes fixes (coins) doivent être au-dessus de tout le reste */
 #data-table thead th:nth-child(-n+3) { z-index: 3; }
+
+/* 6. Réapplication du fond pour assurer l'opacité des cellules fixes */
 #data-table thead th:nth-child(-n+3) { background-color: #e9ecef; }
 #data-table tbody tr:nth-child(odd) td:nth-child(-n+3) { background-color: #fff; }
 #data-table tbody tr:nth-child(even) td:nth-child(-n+3) { background-color: #f8f9fa; }
+
+
+/* --- Responsive Adjustments for Top Banner (Media Query) --- */
+@media (max-width: 768px) {
+    .top-banner {
+        flex-direction: column; /* Stack items vertically */
+        align-items: flex-start; /* Align items to the start (left) */
+        height: auto; /* Allow banner to expand vertically */
+        padding: 8px 10px;
+        position: relative;
+        background-color: #ffffff; /* Ensure background is white always */
+    }
+
+    .banner-title {
+        width: 100%; /* Title takes full width */
+        text-align: left; /* Align title to left */
+        margin-bottom: 5px; /* Space below title */
+        font-size: 1.2em; /* Slightly smaller title on mobile */
+        cursor: pointer; /* Indicate it's clickable */
+        display: flex; /* Make it a flex container to align its internal hamburger */
+        justify-content: space-between; /* Push hamburger to end */
+        align-items: center; /* Vertically align items */
+    }
+
+    /* Style for the hamburger icon inside the title for mobile */
+    .banner-title .hamburger-icon-toggle {
+        display: block; /* Show this specific hamburger icon on mobile */
+        font-size: 1.8em;
+        color: #333;
+        background: none;
+        border: none;
+        padding: 0;
+        line-height: 1;
+        cursor: pointer;
+    }
+
+    /* Hide hamburger for AI Studio dropdown on mobile if main controls are expanded */
+    .menu-container .hamburger-icon {
+        display: none; /* Hide the AI Studio hamburger on small screens by default */
+    }
+
+    /* Control visibility of banner controls on mobile */
+    .banner-controls-left,
+    .banner-controls-right {
+        flex-direction: column; /* Stack buttons vertically */
+        align-items: flex-start; /* Align buttons to the left */
+        width: 100%;
+        gap: 5px;
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid #eee;
+        display: none; /* Hidden by default on mobile */
+    }
+
+    .banner-controls-left.visible-mobile,
+    .banner-controls-right.visible-mobile {
+        display: flex; /* Show when 'visible-mobile' class is active */
+    }
+
+    #region-filters {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        gap: 5px;
+        padding-left: 0;
+        margin-left: 0;
+        border-left: none;
+        width: 100%;
+    }
+
+    .region-button {
+        flex-grow: 0;
+        flex-basis: auto;
+        white-space: nowrap;
+        width: auto;
+    }
+
+    body {
+        padding-top: 60px; /* Adjust padding-top for collapsible banner (initial height on mobile) */
+    }
+}
+
+/* Ensure hamburger is hidden on larger screens by default */
+@media (min-width: 769px) {
+    .banner-title .hamburger-icon-toggle {
+        display: none; /* Hide toggle hamburger on desktop */
+    }
+    .menu-container .hamburger-icon {
+        display: block; /* Show AI Studio hamburger on desktop */
+    }
+    .banner-controls-left,
+    .banner-controls-right {
+        display: flex !important;
+        flex-direction: row !important;
+        width: auto !important;
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+        border-top: none !important;
+    }
+    #region-filters {
+        border-left: 2px solid #ccc;
+        padding-left: 10px;
+        margin-left: 5px;
+    }
+    body {
+        padding-top: 55px; /* Consistent desktop padding */
+    }
+}

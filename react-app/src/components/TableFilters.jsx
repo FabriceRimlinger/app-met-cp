@@ -19,7 +19,21 @@ function TableFilters({ agencyData, selectedTableCEs, onFilterChange }) {
         onFilterChange(newSelectedCEs);
     };
 
-    const allChecked = selectedTableCEs.length === agencyData.length;
+    // CRITICAL: Correctly determine if 'Tout sélectionner' should be checked
+    // It's checked if ALL agencies are selected, AND there are actually agencies to select
+    const allChecked = agencyData.length > 0 && selectedTableCEs.length === agencyData.length;
+    // It should be indeterminate or unchecked if some are selected but not all
+    const someChecked = selectedTableCEs.length > 0 && selectedTableCEs.length < agencyData.length;
+
+    const toggleAllCheckboxRef = useRef(null); // Ref for the toggle all checkbox
+
+    // Use useEffect to set indeterminate state
+    useEffect(() => {
+        if (toggleAllCheckboxRef.current) {
+            toggleAllCheckboxRef.current.indeterminate = someChecked;
+        }
+    }, [someChecked]);
+
 
     return (
         <div id="table-filter-container">
@@ -27,6 +41,7 @@ function TableFilters({ agencyData, selectedTableCEs, onFilterChange }) {
                 <input
                     type="checkbox"
                     id="toggle-all-ce"
+                    ref={toggleAllCheckboxRef} // Assign the ref
                     checked={allChecked}
                     onChange={handleToggleAll}
                 />
