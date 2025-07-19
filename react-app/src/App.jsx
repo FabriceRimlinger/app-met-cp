@@ -141,12 +141,12 @@ function App() {
         setSelectedTableCEs(newSelectedCEs);
     };
 
-    // --- Modal Handlers ---
+       // --- Modal Handlers ---
     const showChartModal = (title, subtitleHTML, chartInstance) => {
         setModalChartTitle(title);
         setModalChartSubtitle(subtitleHTML);
-        // Pass Chart.js config data for modal to recreate the chart
-        setModalChartData(chartInstance.config.data);
+        // CRITICAL CHANGE HERE: Pass the entire chartInstance.config
+        setModalChartData(chartInstance.config); 
         setIsModalVisible(true);
     };
 
@@ -154,7 +154,6 @@ function App() {
         setIsModalVisible(false);
         setModalChartData(null); // Clear modal data on close
     };
-
     return (
         <>
             <Header

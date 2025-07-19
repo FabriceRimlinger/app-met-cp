@@ -11,37 +11,50 @@ function Modal({ isVisible, title, subtitleHTML, chartData, isPercentageData, is
     const modalChartInstanceRef = useRef(null);
 
     useEffect(() => {
-        if (!isVisible || !canvasRef.current || !chartData) {
+        // Cleanup function for previous chart instance
+        const destroyModalChart = () => {
             if (modalChartInstanceRef.current) {
                 modalChartInstanceRef.current.destroy();
                 modalChartInstanceRef.current = null;
             }
+        };
+
+        // If not visible or essential chartData is missing (like chartData.data or chartData.options), destroy and exit
+        if (!isVisible || !canvasRef.current || !chartData || !chartData.data || !chartData.options) {
+            destroyModalChart();
             return;
         }
 
+        // Destroy any existing chart instance before creating a new one
+        destroyModalChart();
+
         const ctx = canvasRef.current.getContext('2d');
 
-        // Filter datasets to only include 'Réalisé' and 'Prévisionnel' for the modal
-        const modalDatasets = chartData.datasets.filter(ds =>
+        // CRITICAL CHANGES HERE: Access data and options correctly from chartData
+        const modalDatasets = chartData.data.datasets.filter(ds => // Use chartData.data.datasets
             (ds.label === 'Réalisé' && isActualVisible) ||
             (ds.label === 'Prévisionnel' && isForecastVisible)
         ).map(ds => ({ ...ds, hidden: false })); // Ensure they are visible in modal
 
+        const modalData = { labels: chartData.data.labels, datasets: modalDatasets }; // Use chartData.data.labels
+
         let localMax = -Infinity;
         modalDatasets.forEach(ds => { ds.data.forEach(val => { if (val !== null && val > localMax) { localMax = val; } }); });
         if (localMax === -Infinity) localMax = isPercentageData ? 100 : 0;
-        if (isPercentageData && localMax <= 100) localMax = 100;
+        if (isPercentageData && localMax < 100) localMax = 100; // Ensure max is at least 100 for percentages
 
+        // CRITICAL CHANGES HERE: Access options correctly from chartData.options
         const modalChartOptions = {
             responsive: true,
             maintainAspectRatio: false,
             scales: {
                 x: {
-                    ...chartData.options.scales.x,
+                    // Copy x-scale options from original chart's config, but adjust font size for modal
+                    ...chartData.options.scales.x, // Use chartData.options.scales.x
                     ticks: { ...chartData.options.scales.x.ticks, font: { size: 12 } }
                 },
                 y: {
-                    min: 0,
+                    min: isPercentageData ? 0 : undefined, // Allow auto-scaling for non-percentage data, otherwise 0
                     max: localMax,
                     grace: '5%',
                     ticks: {
@@ -54,7 +67,8 @@ function Modal({ isVisible, title, subtitleHTML, chartData, isPercentageData, is
             plugins: {
                 legend: { display: true, position: 'top', labels: { boxWidth: 20, padding: 15, font: { size: 14 } } },
                 tooltip: {
-                    ...chartData.options.plugins.tooltip,
+                    // Copy tooltip options from original chart's config, adjust font sizes
+                    ...chartData.options.plugins.tooltip, // Use chartData.options.plugins.tooltip
                     titleFont: { size: 14 },
                     bodyFont: { size: 12 }
                 },
@@ -71,29 +85,19 @@ function Modal({ isVisible, title, subtitleHTML, chartData, isPercentageData, is
             }
         };
 
-        if (modalChartInstanceRef.current) {
-            modalChartInstanceRef.current.destroy();
-        }
-        modalChartInstanceRef.current = new Chart(ctx, {
-            type: 'line',
-            data: { labels: chartData.labels, datasets: modalDatasets },
-            options: modalChartOptions
-        });
+        modalChartInstanceRef.current = new Chart(newCanvas, { type: 'line', data: modalData, options: modalChartOptions });
 
         return () => {
-            if (modalChartInstanceRef.current) {
-                modalChartInstanceRef.current.destroy();
-                modalChartInstanceRef.current = null;
-            }
+            destroyModalChart();
         };
-    }, [isVisible, chartData, isPercentageData, isActualVisible, isForecastVisible]);
+    }, [isVisible, chartData, isPercentageData, isActualVisible, isForecastVisible]); // Depend on chartData (the entire config)
 
     if (!isVisible) return null;
 
     return (
         <div className="modal-overlay visible" onClick={(e) => e.target.classList.contains('modal-overlay') && onClose()}>
             <div className="modal-content">
-                <button className="modal-close-button" onClick={onClose}>&times;</button>
+                <button className="modal-close-button" onClick={onClose}>×</button>
                 <div className="modal-header">
                     <div className="modal-chart-title">{title}</div>
                     <div className="modal-chart-subtitle" dangerouslySetInnerHTML={{ __html: subtitleHTML }}></div>
