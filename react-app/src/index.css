@@ -201,17 +201,29 @@ body {
     z-index: 1000;
 }
 .modal-overlay.visible { display: flex; }
+
 .modal-content {
     background-color: white;
     padding: 15px 20px 20px 20px;
     border-radius: 5px;
-    width: 90vw;
-    height: 85vh;
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     position: relative;
     display: flex;
     flex-direction: column;
+
+    /* --- Adjusted Sizing for Responsiveness --- */
+    width: 95%; /* Use percentage of parent (modal-overlay's 100% width) */
+    height: 95%; /* Use percentage of parent (modal-overlay's 100% height) */
+    max-width: 900px; /* Limits the modal width on larger screens/landscape */
+    max-height: 90vh; /* Limits the modal height to prevent overflow on very tall screens */
+    overflow: hidden; /* Ensures content doesn't break out of the modal if it can't shrink */
+
+    /* On very small screens or landscape, reduce padding to give more chart space */
+    @media (max-width: 600px) and (orientation: landscape) {
+        padding: 10px; /* Reduce padding slightly */
+    }
 }
+
 .modal-close-button {
     position: absolute;
     top: 10px;
@@ -228,18 +240,27 @@ body {
 .modal-chart-title {
     font-size: 1.4em;
     font-weight: bold;
-    color: #333; /* Explicitly ensure modal titles are dark */
+    color: #333;
     margin: 0;
 }
 .modal-chart-subtitle {
     font-size: 0.9em;
-    color: #555; /* Modal subtitles are dark grey */
+    color: #555;
     margin-top: 4px;
     line-height: 1.4;
 }
-#modal-chart-container { width: 100%; flex-grow: 1; position: relative; }
-#modal-chart-container canvas { width: 100% !important; height: 100% !important; }
-
+#modal-chart-container {
+    width: 100%;
+    flex-grow: 1; /* Allows it to take all available vertical space within the flex column */
+    position: relative;
+    /* --- CRITICAL for flex containers with charts --- */
+    min-height: 0; /* Allows the flex item to shrink below its content size */
+    min-width: 0; /* Allows the flex item to shrink below its content size */
+}
+#modal-chart-container canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
 /* --- Data Table Styles --- */
 #data-table-section { margin: 20px 0; padding: 0 10px; }
 #data-table-container { display: block; }
