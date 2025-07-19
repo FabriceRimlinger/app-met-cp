@@ -371,15 +371,13 @@ body {
         display: flex; /* Show when 'visible-mobile' class is active */
     }
 
-    #region-filters {
-        flex-wrap: wrap;
-        justify-content: flex-start;
-        gap: 5px;
-        padding-left: 0;
-        margin-left: 0;
-        border-left: none;
-        width: 100%;
-    }
+#region-filters {
+    display: flex;
+    gap: 10px; /* <-- CHANGE THIS VALUE (e.g., from 5px to 10px or 15px) */
+    border-left: 2px solid #ccc;
+    padding-left: 10px;
+    margin-left: 5px;
+}
 
     .region-button {
         flex-grow: 0;
@@ -410,10 +408,14 @@ body {
         padding-top: 0 !important;
         border-top: none !important;
     }
-    #region-filters {
-        border-left: 2px solid #ccc;
-        padding-left: 10px;
-        margin-left: 5px;
+#region-filters {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        gap: 5px; /* You might want to keep a smaller gap for mobile, or make this 10px too */
+        padding-left: 0;
+        margin-left: 0;
+        border-left: none;
+        width: 100%;
     }
     body {
         padding-top: 55px; /* Consistent desktop padding */
