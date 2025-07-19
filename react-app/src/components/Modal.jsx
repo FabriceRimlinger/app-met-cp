@@ -1,5 +1,5 @@
 // src/components/Modal.jsx
-import React, { useRef, useEffect } from 'react'; // Ensure useRef and useEffect are imported
+import React, { useRef, useEffect } from 'react';
 import Chart from 'chart.js/auto';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { formatSubtitleNumber } from '../utils/chartUtils';
@@ -7,7 +7,7 @@ import { formatSubtitleNumber } from '../utils/chartUtils';
 Chart.register(ChartDataLabels);
 
 function Modal({ isVisible, title, subtitleHTML, chartData, isPercentageData, isActualVisible, isForecastVisible, onClose }) {
-    const canvasRef = useRef(null); // This ref points to the actual <canvas> element
+    const canvasRef = useRef(null);
     const modalChartInstanceRef = useRef(null);
 
     useEffect(() => {
@@ -18,20 +18,19 @@ function Modal({ isVisible, title, subtitleHTML, chartData, isPercentageData, is
             }
         };
 
-        // Ensure chartData, its data, and options are all valid before attempting to draw
         if (!isVisible || !canvasRef.current || !chartData || !chartData.data || !chartData.options) {
             destroyModalChart();
             return;
         }
 
-        destroyModalChart(); // Destroy any existing chart before creating a new one
+        destroyModalChart();
 
-        const ctx = canvasRef.current.getContext('2d'); // Get 2D context from the referenced canvas element
+        const ctx = canvasRef.current.getContext('2d');
 
         const modalDatasets = chartData.data.datasets.filter(ds =>
             (ds.label === 'Réalisé' && isActualVisible) ||
             (ds.label === 'Prévisionnel' && isForecastVisible)
-        ).map(ds => ({ ...ds, hidden: false })); // Ensure they are visible in modal
+        ).map(ds => ({ ...ds, hidden: false }));
 
         const modalData = { labels: chartData.data.labels, datasets: modalDatasets };
 
@@ -42,7 +41,7 @@ function Modal({ isVisible, title, subtitleHTML, chartData, isPercentageData, is
 
         const modalChartOptions = {
             responsive: true,
-            maintainAspectRatio: false,
+            maintainAspectRatio: false, // Essential for dynamic resizing
             scales: {
                 x: {
                     ...chartData.options.scales.x,
@@ -79,15 +78,24 @@ function Modal({ isVisible, title, subtitleHTML, chartData, isPercentageData, is
             }
         };
 
-        // CRITICAL CHANGE: Use canvasRef.current instead of newCanvas
-        modalChartInstanceRef.current = new Chart(canvasRef.current, { // <-- THIS LINE IS THE FIX
+        modalChartInstanceRef.current = new Chart(canvasRef.current, {
             type: 'line',
             data: modalData,
             options: modalChartOptions
         });
 
+        // Add resize listener for the modal chart
+        const handleResize = () => {
+            if (modalChartInstanceRef.current) {
+                modalChartInstanceRef.current.resize(); // Force chart to redraw to new container size
+            }
+        };
+
+        window.addEventListener('resize', handleResize);
+
         return () => {
             destroyModalChart();
+            window.removeEventListener('resize', handleResize); // Clean up event listener
         };
     }, [isVisible, chartData, isPercentageData, isActualVisible, isForecastVisible]);
 
@@ -102,7 +110,6 @@ function Modal({ isVisible, title, subtitleHTML, chartData, isPercentageData, is
                     <div className="modal-chart-subtitle" dangerouslySetInnerHTML={{ __html: subtitleHTML }}></div>
                 </div>
                 <div id="modal-chart-container">
-                    {/* The canvas element linked by canvasRef */}
                     <canvas ref={canvasRef}></canvas>
                 </div>
             </div>
