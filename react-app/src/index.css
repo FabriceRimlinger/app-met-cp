@@ -5,7 +5,7 @@ body {
     padding: 0;
     background-color: #f0f0f0;
     color: #333; /* This is your intended dark text color */
-    padding-top: 55px; /* Default padding for fixed header */
+    padding-top: 50px; /* Default padding for fixed header */
 }
 
 /* --- Top Banner Styles --- */
@@ -334,8 +334,8 @@ body {
         align-items: flex-start; /* Align buttons to the left */
         width: 100%;
         gap: 5px;
-        margin-top: 10px;
-        padding-top: 10px;
+        margin-top: 5px;
+        padding-top: 5px;
         border-top: 1px solid #eee;
         display: none; /* Hidden by default on mobile */
     }
