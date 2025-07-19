@@ -1,5 +1,5 @@
 // src/components/TableFilters.jsx
-import React from 'react';
+import React, { useRef } from 'react'; 
 
 function TableFilters({ agencyData, selectedTableCEs, onFilterChange }) {
     const handleToggleAll = (event) => {
