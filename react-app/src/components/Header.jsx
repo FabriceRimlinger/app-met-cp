@@ -34,7 +34,7 @@ function Header({
     return (
         <header className="top-banner">
             <h1 className="banner-title" onClick={toggleMobileControls}> {/* Click title to toggle controls */}
-                # Colis MET (Réalisé vs Prévisionnel Semaine)
+                # Colis MET/Wk
                 {/* This hamburger acts as the visual toggle for mobile controls. Hidden on desktop by CSS. */}
                 <button className="hamburger-icon-toggle" type="button">☰</button>
             </h1>
@@ -47,14 +47,14 @@ function Header({
                      id="toggle-actual-button"
                      onClick={onToggleActual}
                  >
-                     Réalisé
+                     Actual
                  </button>
                  <button
                      className={`toggle-button ${isForecastVisible ? 'visible' : ''}`}
                      id="toggle-forecast-button"
                      onClick={onToggleForecast}
                  >
-                     Prévi
+                     Prév.
                  </button>
                  <button id="ratio-toggle-button" onClick={onToggleChartRatio}>
                      {chartRatioClass === 'ratio-16-9' ? 'Ratio 16:9' : 'Ratio 1:1'}
