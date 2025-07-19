@@ -76,7 +76,7 @@ function ChartCard({
         // Add Forecast Data Series
         datasets.push({
             type: 'line',
-            label: 'Prévisionnel',
+            label: 'Prév.',
             data: forecastData,
             borderColor: isNetwork ? NETWORK_FORECAST_COLOR : DEFAULT_FORECAST_COLOR,
             tension: 0.1,
@@ -89,7 +89,7 @@ function ChartCard({
         // Add Actual Data Series
         datasets.push({
             type: 'line',
-            label: 'Réalisé',
+            label: 'Actuel',
             data: actualData,
             borderColor: isNetwork ? NETWORK_ACTUAL_COLOR : DEFAULT_ACTUAL_COLOR,
             tension: 0.1,
