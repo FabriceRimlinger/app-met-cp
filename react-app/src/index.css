@@ -227,6 +227,45 @@ body {
 #table-filter-container label { cursor: pointer; user-select: none; }
 #table-filter-container input { vertical-align: middle; margin-right: 4px; }
 
+/* --- Responsive Adjustments --- */
+@media (max-width: 768px) {
+    .top-banner {
+        flex-wrap: wrap; /* Allow items to wrap to next line */
+        justify-content: center; /* Center items when wrapped */
+        height: auto; /* Allow banner to expand vertically */
+        padding: 8px 10px; /* Slightly more padding for smaller screens */
+    }
+
+    .banner-controls-left, .banner-controls-right {
+        width: 100%; /* Make control groups take full width */
+        justify-content: center; /* Center controls */
+        margin-top: 5px; /* Add some space between rows */
+        margin-left: 0; /* Remove left margin from region filters */
+        padding-left: 0; /* Remove left padding from region filters */
+        border-left: none; /* Remove left border from region filters */
+    }
+
+    .region-button {
+        flex-grow: 1; /* Allow region buttons to grow and fill space */
+        min-width: unset; /* Remove min-width to allow flexibility */
+    }
+
+    /* Adjust padding for page content when banner wraps */
+    body {
+        padding-top: 100px; /* Adjust if banner becomes taller */
+    }
+}
+
+/* Ensure chart containers adapt */
+.chart-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Slightly larger min-width for phone readability */
+}
+
+.chart-container {
+    min-width: unset; /* Ensure chart containers don't have a fixed minimum width preventing wrap */
+    max-width: 100%; /* Ensure chart containers don't overflow */
+}
+
 /* --- Sticky Table Columns --- */
 #table-scroll-wrapper { max-height: 400px; overflow: auto; border: 1px solid #ccc; }
 #data-table { width: 100%; border-collapse: collapse; font-size: 0.8em; }
