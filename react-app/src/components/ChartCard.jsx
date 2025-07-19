@@ -1,28 +1,48 @@
 // src/components/ChartCard.jsx
 import React, { useRef, useEffect } from 'react';
 import Chart from 'chart.js/auto'; // Using auto for easier registration
-import ChartDataLabels from 'chartjs-plugin-datalabels';
+import ChartDataLabels from 'chartjs-plugin-datalabels'; // Import the datalabels plugin
 import {
     DEFAULT_ACTUAL_COLOR, DEFAULT_FORECAST_COLOR, NETWORK_ACTUAL_COLOR, NETWORK_FORECAST_COLOR,
     BACKGROUND_AREA_COLOR, BACKGROUND_AREA_OPACITY
-} from '../constants';
-import { calculateYTD, calculateGapPercent, formatSubtitleNumber } from '../utils/chartUtils';
+} from '../constants'; // Ensure this import path is correct
+import { calculateYTD, calculateGapPercent, formatSubtitleNumber } from '../utils/chartUtils'; // Ensure this import path is correct
 
-Chart.register(ChartDataLabels); // Register once globally
+// Register ChartDataLabels globally once
+// This should ideally be done in main.jsx or App.jsx if Chart is used across many components
+// but doing it here ensures it's registered when ChartCard is rendered.
+Chart.register(ChartDataLabels);
 
 function ChartCard({
     entityData, titleText, subtitleHTML, isNetwork, scaleMin, scaleMax,
     minBgData, maxBgData, isPercentageData, isActualVisible, isForecastVisible, chartRatioClass,
-    onDoubleClick
+    onDoubleClick // Callback for double-clicking the chart
 }) {
-    const canvasRef = useRef(null);
-    const chartInstanceRef = useRef(null); // To store Chart.js instance
+    const canvasRef = useRef(null); // Ref to the canvas DOM element
+    const chartInstanceRef = useRef(null); // Ref to store the Chart.js instance
 
     useEffect(() => {
-        if (!canvasRef.current || !entityData) return;
+        // Define a cleanup function to destroy the chart instance
+        const destroyChart = () => {
+            if (chartInstanceRef.current) {
+                chartInstanceRef.current.destroy();
+                chartInstanceRef.current = null;
+            }
+        };
+
+        // If no canvas or entityData, destroy any existing chart and exit
+        if (!canvasRef.current || !entityData) {
+            destroyChart();
+            return;
+        }
+
+        // Destroy any existing chart instance before creating a new one
+        destroyChart();
 
         const ctx = canvasRef.current.getContext('2d');
         const { actual: actualData, forecast: forecastData } = entityData;
+
+        // Determine the number of weeks based on the longest data array
         const weeks = Math.max(
             actualData ? actualData.length : 0,
             forecastData ? forecastData.length : 0
@@ -31,14 +51,15 @@ function ChartCard({
 
         const datasets = [];
 
+        // Add the gray shaded area for agency charts (min/max range)
         if (!isNetwork && minBgData && maxBgData) {
             datasets.push({
                 type: 'line',
                 data: minBgData,
                 borderColor: 'transparent',
                 pointRadius: 0,
-                order: 4,
-                spanGaps: true // Allow gaps in background data
+                order: 4, // Render below actual/forecast lines
+                spanGaps: true // Allow gaps in the data for this area
             });
             datasets.push({
                 type: 'line',
@@ -47,11 +68,12 @@ function ChartCard({
                 backgroundColor: BACKGROUND_AREA_COLOR + BACKGROUND_AREA_OPACITY,
                 pointRadius: 0,
                 fill: { target: '-1' }, // Fill between this dataset and the previous one (minBgData)
-                order: 3,
+                order: 3, // Render below actual/forecast lines
                 spanGaps: true
             });
         }
 
+        // Add Forecast Data Series
         datasets.push({
             type: 'line',
             label: 'Prévisionnel',
@@ -61,8 +83,10 @@ function ChartCard({
             pointRadius: 0,
             borderWidth: 1.5,
             order: 2,
-            hidden: !isForecastVisible,
+            hidden: !isForecastVisible, // Control visibility via state
         });
+
+        // Add Actual Data Series
         datasets.push({
             type: 'line',
             label: 'Réalisé',
@@ -72,9 +96,10 @@ function ChartCard({
             pointRadius: 0,
             borderWidth: 1.5,
             order: 1,
-            hidden: !isActualVisible,
+            hidden: !isActualVisible, // Control visibility via state
         });
 
+        // Determine chart aspect ratio based on chartRatioClass prop
         const chartAspectRatio = chartRatioClass === 'ratio-1-1' ? 1 : 16 / 9;
 
         const options = {
@@ -87,12 +112,13 @@ function ChartCard({
                     grid: { display: false }
                 },
                 y: {
-                    min: isNetwork ? (isPercentageData ? 0 : undefined) : scaleMin,
-                    max: isNetwork ? undefined : scaleMax,
-                    grace: '5%',
+                    min: isNetwork ? (isPercentageData ? 0 : undefined) : scaleMin, // Network chart min can be 0 for percentage, otherwise auto
+                    max: isNetwork ? undefined : scaleMax, // Network chart max auto
+                    grace: '5%', // Add a little padding to the top of the Y-axis
                     ticks: {
-                        font: { size: 8 }, padding: 3,
-                        stepSize: isNetwork ? undefined : (isPercentageData ? 10 : 5000), // Adjust step size for percentages
+                        font: { size: 8 },
+                        padding: 3,
+                        stepSize: isNetwork ? undefined : (isPercentageData ? 10 : 5000), // Adjust step size, especially for percentages
                         callback: function(value) {
                             if (isPercentageData) return value.toFixed(0) + '%';
                             if (value === 0) return "0";
@@ -105,12 +131,15 @@ function ChartCard({
                 }
             },
             plugins: {
-                legend: { display: false },
-                datalabels: { display: false }, // Data labels are only for modal chart
+                legend: { display: false }, // No legend on small cards
+                datalabels: { display: false }, // Data labels only in modal
                 tooltip: {
-                    enabled: true, mode: 'index', intersect: false, position: 'nearest',
+                    enabled: true, // Enable tooltips
+                    mode: 'index', // Show tooltips for all data points at the hovered X index
+                    intersect: false, // Tooltip shows even if not directly over a point
+                    position: 'nearest', // Position tooltip near the cursor
                     callbacks: {
-                        title: (tooltipItems) => tooltipItems[0]?.label || '',
+                        title: (tooltipItems) => tooltipItems[0]?.label || '', // Week number as title
                         label: (tooltipItem) => null, // Hide default label
                         afterBody: (tooltipItems) => {
                             const dataIndex = tooltipItems[0]?.dataIndex;
@@ -121,21 +150,25 @@ function ChartCard({
                             const formatValue = (val) => (val === null || val === undefined) ? 'N/A' : (isPercentageData ? val.toFixed(1) + '%' : val.toLocaleString());
 
                             let lines = [];
+                            // Display weekly values and gap if both are available
                             if (currentActual !== null && currentForecast !== null) {
-                                const actualYTD = calculateYTD(actualData, dataIndex);
-                                const forecastYTD = calculateYTD(forecastData, dataIndex);
-
                                 if (isActualVisible) lines.push(`Wk Act : ${formatValue(currentActual)}`);
-                                if (isForecastVisible) lines.push(`Wk Prev.: ${formatValue(currentForecast)}`);
+                                if (isForecastVisible) lines.push(`Wk Prév.: ${formatValue(currentForecast)}`);
                                 if (isActualVisible && isForecastVisible) lines.push(`Delta Wk: ${calculateGapPercent(currentActual, currentForecast)}`);
-                                lines.push('---');
-                                if (isActualVisible) lines.push(`YTD Act.: ${formatSubtitleNumber(actualYTD)}`);
-                                if (isForecastVisible) lines.push(`YTD Prév.: ${formatSubtitleNumber(forecastYTD)}`);
-                                if (isActualVisible && isForecastVisible) lines.push(`Delta YTD: ${calculateGapPercent(actualYTD, forecastYTD)}`);
+                                lines.push('---'); // Separator
                             } else {
+                                // Display only available weekly value if one is null
                                 if (isActualVisible && currentActual !== null) lines.push(`Actuel: ${formatValue(currentActual)}`);
                                 if (isForecastVisible && currentForecast !== null) lines.push(`Prévision: ${formatValue(currentForecast)}`);
                             }
+
+                            // Always display YTD values and gap if available, even if weekly are null
+                            const actualYTD = calculateYTD(actualData, dataIndex);
+                            const forecastYTD = calculateYTD(forecastData, dataIndex);
+                            if (isActualVisible) lines.push(`YTD Act.: ${formatSubtitleNumber(actualYTD)}`);
+                            if (isForecastVisible) lines.push(`YTD Prév.: ${formatSubtitleNumber(forecastYTD)}`);
+                            if (isActualVisible && isForecastVisible) lines.push(`Delta YTD: ${calculateGapPercent(actualYTD, forecastYTD)}`);
+
                             return lines;
                         }
                     }
@@ -143,23 +176,21 @@ function ChartCard({
             }
         };
 
-        if (chartInstanceRef.current) {
-            chartInstanceRef.current.destroy(); // Destroy previous instance
-        }
+        // Create the new chart instance
         chartInstanceRef.current = new Chart(ctx, { type: 'line', data: { labels: chartLabels, datasets: datasets }, options: options });
 
-        // Cleanup on component unmount
+        // Cleanup function that runs when component unmounts or effect re-runs
         return () => {
-            if (chartInstanceRef.current) {
-                chartInstanceRef.current.destroy();
-                chartInstanceRef.current = null;
-            }
+            destroyChart();
         };
-    }, [entityData, isActualVisible, isForecastVisible, chartRatioClass, isNetwork, scaleMin, scaleMax, minBgData, maxBgData, isPercentageData]); // Re-run effect if these props change
+    }, [
+        entityData, isActualVisible, isForecastVisible, chartRatioClass,
+        isNetwork, scaleMin, scaleMax, minBgData, maxBgData, isPercentageData
+    ]); // Dependencies for useEffect
 
-    // Double click to open modal, passing the current chart instance data
+    // Double click handler to show the modal
     const handleDoubleClick = () => {
-        if (chartInstanceRef.current) {
+        if (chartInstanceRef.current && onDoubleClick) {
             onDoubleClick(titleText, subtitleHTML, chartInstanceRef.current);
         }
     };
