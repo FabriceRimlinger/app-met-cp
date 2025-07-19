@@ -48,7 +48,7 @@ function Header({
     return (
         <header ref={headerRef} className="top-banner"> {/* Assign ref to the header element */}
             <h1 className="banner-title" onClick={toggleMobileControls}> {/* Click title to toggle main controls */}
-                # Colis MET (Réalisé vs Prévisionnel Semaine)
+                # Colis MET/Semaine
                 {/* This button acts as the visual toggle for mobile controls. Hidden on desktop by CSS. */}
                 <button className="hamburger-icon-toggle" type="button">☰</button>
             </h1>

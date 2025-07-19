@@ -28,8 +28,8 @@ function Modal({ isVisible, title, subtitleHTML, chartData, isPercentageData, is
         const ctx = canvasRef.current.getContext('2d');
 
         const modalDatasets = chartData.data.datasets.filter(ds =>
-            (ds.label === 'Réalisé' && isActualVisible) ||
-            (ds.label === 'Prévisionnel' && isForecastVisible)
+            (ds.label === 'Actuel' && isActualVisible) ||
+            (ds.label === 'Prév.' && isForecastVisible)
         ).map(ds => ({ ...ds, hidden: false }));
 
         const modalData = { labels: chartData.data.labels, datasets: modalDatasets };
@@ -45,7 +45,7 @@ function Modal({ isVisible, title, subtitleHTML, chartData, isPercentageData, is
             scales: {
                 x: {
                     ...chartData.options.scales.x,
-                    ticks: { ...chartData.options.scales.x.ticks, font: { size: 12 } }
+                    ticks: { ...chartData.options.scales.x.ticks, font: { size: 10 } }
                 },
                 y: {
                     min: isPercentageData ? 0 : undefined,
@@ -59,16 +59,16 @@ function Modal({ isVisible, title, subtitleHTML, chartData, isPercentageData, is
                 }
             },
             plugins: {
-                legend: { display: true, position: 'top', labels: { boxWidth: 20, padding: 15, font: { size: 14 } } },
+                legend: { display: true, position: 'top', labels: { boxWidth: 20, padding: 15, font: { size: 12 } } },
                 tooltip: {
                     ...chartData.options.plugins.tooltip,
-                    titleFont: { size: 14 },
-                    bodyFont: { size: 12 }
+                    titleFont: { size: 12 },
+                    bodyFont: { size: 10 }
                 },
                 datalabels: {
                     display: (context) => {
                         const datasetLabel = context.dataset.label;
-                        return (datasetLabel === 'Réalisé' && isActualVisible) || (datasetLabel === 'Prévisionnel' && isForecastVisible);
+                        return (datasetLabel === 'Actuel' && isActualVisible) || (datasetLabel === 'Prév.' && isForecastVisible);
                     },
                     align: 'top',
                     color: (context) => context.dataset.borderColor,
