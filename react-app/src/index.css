@@ -227,32 +227,93 @@ body {
 #table-filter-container label { cursor: pointer; user-select: none; }
 #table-filter-container input { vertical-align: middle; margin-right: 4px; }
 
-/* --- Responsive Adjustments --- */
+/* --- New Responsive Adjustments for Top Banner --- */
 @media (max-width: 768px) {
     .top-banner {
-        flex-wrap: wrap; /* Allow items to wrap to next line */
-        justify-content: center; /* Center items when wrapped */
-        height: auto; /* Allow banner to expand vertically */
-        padding: 8px 10px; /* Slightly more padding for smaller screens */
+        flex-direction: column; /* Stack items vertically */
+        align-items: flex-start; /* Align items to the start (left) */
+        height: auto;
+        padding: 8px 10px;
+        position: relative; /* Allow dropdown to position relative to banner */
     }
 
-    .banner-controls-left, .banner-controls-right {
-        width: 100%; /* Make control groups take full width */
-        justify-content: center; /* Center controls */
-        margin-top: 5px; /* Add some space between rows */
-        margin-left: 0; /* Remove left margin from region filters */
-        padding-left: 0; /* Remove left padding from region filters */
-        border-left: none; /* Remove left border from region filters */
+    .banner-title {
+        width: 100%; /* Title takes full width */
+        text-align: left; /* Align title to left */
+        margin-bottom: 5px; /* Space below title */
+        font-size: 1.2em; /* Slightly smaller title on mobile */
+    }
+
+    /* Hide hamburger by default for desktop, show on mobile */
+    .hamburger-icon {
+        display: block; /* Show hamburger icon on mobile */
+        position: absolute; /* Position it absolutely */
+        right: 10px; /* From right edge */
+        top: 8px; /* From top edge */
+        font-size: 1.8em;
+        color: #333; /* Dark color for visibility */
+    }
+
+    /* Control visibility of banner controls on mobile */
+    .banner-controls-left,
+    .banner-controls-right {
+        flex-direction: column; /* Stack buttons vertically */
+        align-items: flex-start; /* Align buttons to the left */
+        width: 100%;
+        gap: 5px; /* Smaller gap between stacked buttons */
+        margin-top: 10px; /* Space from title */
+        padding-top: 10px; /* Padding for the top section */
+        border-top: 1px solid #eee; /* Separator line */
+        display: none; /* Hidden by default on mobile */
+    }
+
+    .banner-controls-left.visible-mobile,
+    .banner-controls-right.visible-mobile {
+        display: flex; /* Show when 'visible-mobile' class is active */
+    }
+
+    #region-filters {
+        flex-wrap: wrap; /* Allow region buttons to wrap */
+        justify-content: flex-start; /* Align region buttons to start */
+        gap: 5px;
+        padding-left: 0;
+        margin-left: 0;
+        border-left: none;
+        width: 100%; /* Take full width */
     }
 
     .region-button {
-        flex-grow: 1; /* Allow region buttons to grow and fill space */
-        min-width: unset; /* Remove min-width to allow flexibility */
+        flex-grow: 0; /* Don't force them to grow */
+        flex-basis: auto; /* Let content define width */
+        white-space: nowrap; /* Keep buttons on one line */
+        width: auto; /* Auto width */
     }
 
-    /* Adjust padding for page content when banner wraps */
     body {
-        padding-top: 100px; /* Adjust if banner becomes taller */
+        padding-top: 60px; /* Adjust padding-top for collapsible banner */
+    }
+}
+
+/* Ensure hamburger is hidden on larger screens by default */
+@media (min-width: 769px) {
+    .hamburger-icon {
+        display: none; /* Hide hamburger on desktop */
+    }
+
+    /* Ensure controls are always visible on desktop */
+    .banner-controls-left,
+    .banner-controls-right {
+        display: flex !important; /* Force display flex on desktop */
+        flex-direction: row !important; /* Restore row direction */
+        width: auto !important; /* Restore auto width */
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+        border-top: none !important;
+    }
+    #region-filters {
+        border-left: 2px solid #ccc; /* Restore border for desktop */
+        padding-left: 10px;
+        margin-left: 5px;
     }
 }
 

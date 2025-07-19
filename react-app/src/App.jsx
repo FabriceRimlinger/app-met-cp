@@ -1,47 +1,53 @@
 // src/App.jsx
 import React, { useState, useEffect, useCallback } from 'react';
-import { supabaseClient } from './utils/supabase';
-import { REGIONS } from './constants';
+import { supabaseClient } from './utils/supabase'; // Ensure this import path is correct
+import { REGIONS } from './constants'; // Ensure this import path is correct
 import Header from './components/Header';
 import ChartGrid from './components/ChartGrid';
 import DataTable from './components/DataTable';
 import Modal from './components/Modal';
 
 function App() {
+    // --- Data States ---
     const [networkData, setNetworkData] = useState(null);
     const [agencyData, setAgencyData] = useState([]);
     const [weeks, setWeeks] = useState(0);
     const [isPercentageData, setIsPercentageData] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
 
+    // --- UI Control States ---
     const [isActualVisible, setIsActualVisible] = useState(true);
     const [isForecastVisible, setIsForecastVisible] = useState(true);
     const [chartRatioClass, setChartRatioClass] = useState('ratio-16-9');
     const [selectedRegion, setSelectedRegion] = useState('ALL'); // For chart filtering
     const [selectedTableCEs, setSelectedTableCEs] = useState([]); // For table filtering
 
-    // Modal state
+    // --- Modal States ---
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [modalChartTitle, setModalChartTitle] = useState('');
     const [modalChartSubtitle, setModalChartSubtitle] = useState('');
     const [modalChartData, setModalChartData] = useState(null); // Chart.js config for modal
 
+    // --- Error Handling Functions ---
     const displayError = useCallback((message) => {
         setErrorMessage(message);
         setNetworkData(null);
         setAgencyData([]);
+        setSelectedTableCEs([]); // Clear table filters if data load fails
     }, []);
 
     const clearError = useCallback(() => {
         setErrorMessage('');
     }, []);
 
+    // --- Data Fetching Function ---
     const fetchAndDrawData = useCallback(async () => {
         clearError();
         setErrorMessage('Chargement des données...');
         setNetworkData(null);
         setAgencyData([]);
-        setSelectedTableCEs([]); // Reset table filters on refresh
+        // Do NOT clear selectedTableCEs here, as it will be reset *after* data is loaded
+        // to reflect all loaded agencies. If it was cleared here, the checkboxes would flicker.
 
         try {
             let { data, error } = await supabaseClient.from('volume_data').select('EntityType, EntityID, EntityName, CECode, ActualData, ForecastData, is_percentage');
@@ -82,7 +88,8 @@ function App() {
 
             setNetworkData(newNetworkData);
             setAgencyData(newAgencyData);
-            // Initialize all checkboxes in the table to checked
+
+            // Initialize all checkboxes in the table to checked by default
             setSelectedTableCEs(newAgencyData.map(a => a.ceCode));
 
             setErrorMessage(''); // Clear loading message on success
@@ -93,31 +100,35 @@ function App() {
         }
     }, [clearError, displayError]);
 
+    // --- Effect for initial data load ---
     useEffect(() => {
         fetchAndDrawData();
-    }, [fetchAndDrawData]); // Run once on component mount
+    }, [fetchAndDrawData]); // Runs once on component mount
 
-    // Handlers for top banner buttons
+    // --- Handlers for Header Buttons ---
     const handleToggleActual = () => setIsActualVisible(prev => !prev);
     const handleToggleForecast = () => setIsForecastVisible(prev => !prev);
     const handleToggleChartRatio = () => setChartRatioClass(prev => prev === 'ratio-16-9' ? 'ratio-1-1' : 'ratio-16-9');
+
     const handleSelectRegion = (region) => {
         setSelectedRegion(region);
 
         // Update chart visibility based on region selection
+        // This DOM manipulation is generally avoided in React, but used here to match original logic
+        // A more "React" way would be to filter agencyData *before* passing it to ChartGrid
         const chartContainers = document.querySelectorAll('.chart-container[data-ce-code]');
         const upperRegion = region.toUpperCase();
-        const regionCEs = REGIONS[upperRegion];
+        const regionCEs = REGIONS[upperRegion]; // Get CE codes for the selected region
 
         chartContainers.forEach(chart => {
             if (upperRegion === 'ALL' || (regionCEs && regionCEs.includes(chart.dataset.ceCode))) {
-                chart.style.display = 'flex';
+                chart.style.display = 'flex'; // Show chart
             } else {
-                chart.style.display = 'none';
+                chart.style.display = 'none'; // Hide chart
             }
         });
 
-        // Update table filters based on region selection
+        // Update table filters based on region selection for consistency
         if (region === 'ALL') {
             setSelectedTableCEs(agencyData.map(a => a.ceCode));
         } else {
@@ -125,22 +136,23 @@ function App() {
         }
     };
 
-    // Handler for table filters
+    // --- Handler for Table Filters ---
     const handleTableFilterChange = (newSelectedCEs) => {
         setSelectedTableCEs(newSelectedCEs);
     };
 
-    // Handler for showing modal
+    // --- Modal Handlers ---
     const showChartModal = (title, subtitleHTML, chartInstance) => {
         setModalChartTitle(title);
         setModalChartSubtitle(subtitleHTML);
-        setModalChartData(chartInstance.config.data); // Pass chart data and labels for modal
+        // Pass Chart.js config data for modal to recreate the chart
+        setModalChartData(chartInstance.config.data);
         setIsModalVisible(true);
     };
 
     const closeModal = () => {
         setIsModalVisible(false);
-        setModalChartData(null);
+        setModalChartData(null); // Clear modal data on close
     };
 
     return (
@@ -158,6 +170,8 @@ function App() {
             />
             <div className="page-content">
                 {errorMessage && <div id="error-message">{errorMessage}</div>}
+
+                {/* Render Chart Grid only if data is available */}
                 {networkData && agencyData.length > 0 && (
                     <ChartGrid
                         networkData={networkData}
@@ -165,22 +179,25 @@ function App() {
                         isActualVisible={isActualVisible}
                         isForecastVisible={isForecastVisible}
                         chartRatioClass={chartRatioClass}
-                        onChartDoubleClick={showChartModal}
+                        onChartDoubleClick={showChartModal} // Pass modal trigger
                         isPercentageData={isPercentageData}
                     />
                 )}
+
+                {/* Render Data Table only if data is available */}
                 {networkData && agencyData.length > 0 && (
                     <DataTable
                         networkData={networkData}
                         agencyData={agencyData}
                         isPercentageData={isPercentageData}
                         weeks={weeks}
-                        selectedTableCEs={selectedTableCEs}
-                        onTableFilterChange={handleTableFilterChange}
+                        selectedTableCEs={selectedTableCEs} // Pass selected CEs for filtering
+                        onTableFilterChange={handleTableFilterChange} // Pass filter handler
                     />
                 )}
             </div>
 
+            {/* Modal for zoomed-in chart view */}
             <Modal
                 isVisible={isModalVisible}
                 title={modalChartTitle}
