@@ -212,15 +212,21 @@ body {
     flex-direction: column;
 
     /* --- Adjusted Sizing for Responsiveness --- */
-    width: 95%; /* Use percentage of parent (modal-overlay's 100% width) */
-    height: 95%; /* Use percentage of parent (modal-overlay's 100% height) */
-    max-width: 900px; /* Limits the modal width on larger screens/landscape */
-    max-height: 90vh; /* Limits the modal height to prevent overflow on very tall screens */
-    overflow: hidden; /* Ensures content doesn't break out of the modal if it can't shrink */
+    width: 95%; /* Keep percentage for general responsiveness */
+    height: 95%; /* Keep percentage for general responsiveness */
+    max-width: 1000px; /* Increase max-width for larger laptop screens if desired */
+    max-height: 90vh; /* Keep as vh to adapt to screen height */
+    overflow: hidden;
 
-    /* On very small screens or landscape, reduce padding to give more chart space */
+    /* For mobile landscape, you might want to adjust width/height percentages too if needed */
     @media (max-width: 600px) and (orientation: landscape) {
-        padding: 10px; /* Reduce padding slightly */
+        width: 98%; /* Slightly wider for landscape */
+        height: 98%; /* Taller for landscape */
+        padding: 10px;
+    }
+    /* For smaller portrait screens */
+    @media (max-width: 400px) {
+        padding: 10px;
     }
 }
 
@@ -386,8 +392,14 @@ body {
         width: auto;
     }
 
-    body {
-        padding-top: 60px; /* Adjust padding-top for collapsible banner (initial height on mobile) */
+  body {
+        padding-top: 55px; /* Default padding for collapsed header (match min-height) */
+    }
+    /* When the header is expanded, add more padding to body */
+    .top-banner.mobile-expanded + .page-content {
+        /* This class will be added/removed by JS on the top-banner */
+        padding-top: 100px; /* Example: adjust based on actual expanded height */
+        /* Use a higher value than 55px to ensure content is below the expanded banner */
     }
 }
 
